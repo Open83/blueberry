@@ -8,44 +8,43 @@
   <!-- No favicon 404 -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
 
-  <!-- React 18 Production -->
+  <!-- React 18 (Production) -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-  <!-- Babel Standalone (for JSX) -->
+  <!-- Babel for JSX (this version works perfectly) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-  <!-- Tailwind CDN + Warning Killed -->
+  <!-- Tailwind CDN + Warning 100% KILLED -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { logLevel: 'silent' };
   </script>
 
   <style>
-    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-bounce { animation: bounce 2s infinite; }
-    .animate-pulse { animation: pulse 1.5s infinite; }
-    .animate-fade-in { animation: fade-in 0.8s ease-out; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .bounce { animation: bounce 2s infinite; }
+    .pulse { animation: pulse 1.8s infinite; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100">
+<body class="min-h-screen bg-gradient-to-br from-pink-200 via-rose-200 to-red-200">
 
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
-const { Heart, Music, Play, Pause, Download, Home, Gamepad2, FileText, Lock } = window.lucide;
 
+const { useState, useEffect } = React;
+const { Heart, Music, Download, Home, Gamepad2, FileText, Lock } = window.lucide;
+
+// Main App Component
 const SaraaaWebsite = () => {
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [currentPage, setCurrentPage] = useState('lock');
+  const [unlocked, setUnlocked] = useState(false);
+  const [page, setPage] = useState('lock');
   const [wins, setWins] = useState(0);
-
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [gameOver, setGameOver] = useState(false);
@@ -56,150 +55,106 @@ const SaraaaWebsite = () => {
   const [score, setScore] = useState(0);
   const [gameActive, setGameActive] = useState(false);
 
-  const [mazePlayerPos, setMazePlayerPos] = useState({ x: 0, y: 0 });
+  const [mazePos, setMazePos] = useState({x:0, y:0});
   const [mazeSolved, setMazeSolved] = useState(false);
 
-  const [noteText, setNoteText] = useState('');
+  const [note, setNote] = useState('');
 
-  const songs = [
-    { title: "Perfect", artist: "Ed Sheeran", color: "from-pink-400 to-rose-600" },
-    { title: "Lover", artist: "Taylor Swift", color: "from-purple-400 to-pink-600" },
-    { title: "All of Me", artist: "John Legend", color: "from-blue-400 to-purple-600" },
-    { title: "Thinking Out Loud", artist: "Ed Sheeran", color: "from-red-400 to-pink-600" },
-    { title: "A Thousand Years", artist: "Christina Perri", color: "from-rose-400 to-red-600" }
-  ];
+  const winLines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  const checkWin = b => winLines.find(l => b[l[0]] && b[l[0]]===b[l[1]] && b[l[0]]===b[l[2]]) ? b[winLines.find(l => b[l[0]] && b[l[0]]===b[l[1]] && b[l[0]]===b[l[2]])[0]] : null;
 
-  const checkWinner = (squares) => {
-    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    for (let [a,b,c] of lines) {
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) return squares[a];
-    }
-    return null;
+  const aiMove = () => {
+    const empty = board.map((v,i)=>v===null?i:null).filter(i=>i!==null);
+    return empty.length ? empty[Math.floor(Math.random()*empty.length)] : null;
   };
 
-  const makeAIMove = (currentBoard) => {
-    const empty = currentBoard.map((v,i) => v === null ? i : null).filter(v => v !== null);
-    return empty.length ? empty[Math.floor(Math.random() * empty.length)] : null;
-  };
-
-  const handleSquareClick = (i) => {
+  const click = (i) => {
     if (board[i] || gameOver || !isPlayerTurn) return;
-    const newBoard = [...board];
-    newBoard[i] = 'X';
-    setBoard(newBoard);
-
-    const win = checkWinner(newBoard);
-    if (win === 'X') {
+    const b = [...board];
+    b[i] = 'X'; setBoard(b);
+    const w = checkWin(b);
+    if (w) {
       setWinner('X'); setGameOver(true);
-      const newWins = wins + 1;
-      setWins(newWins);
-      if (newWins >= 3) {
-        setTimeout(() => { setIsUnlocked(true); setCurrentPage('home'); }, 2000);
-      }
+      const nw = wins + 1;
+      setWins(nw);
+      if (nw >= 3) setTimeout(() => { setUnlocked(true); setPage('home'); }, 1500);
       return;
     }
-    if (!newBoard.includes(null)) { setGameOver(true); return; }
-
+    if (!b.includes(null)) { setGameOver(true); return; }
     setIsPlayerTurn(false);
     setTimeout(() => {
-      const move = makeAIMove(newBoard);
-      if (move !== null) {
-        newBoard[move] = 'O';
-        setBoard(newBoard);
-        if (checkWinner(newBoard) === 'O') { setWinner('O'); setGameOver(true); setWins(0); }
-      }
+      const m = aiMove();
+      if (m !== null) { b[m]='O'; setBoard(b); if (checkWin(b)) { setWinner('O'); setGameOver(true); setWins(0); } }
       setIsPlayerTurn(true);
-    }, 600);
+    }, 700);
   };
 
-  const resetGame = () => {
-    setBoard(Array(9).fill(null));
-    setIsPlayerTurn(true);
-    setGameOver(false);
-    setWinner(null);
-  };
+  const reset = () => { setBoard(Array(9).fill(null)); setGameOver(false); setWinner(null); setIsPlayerTurn(true); };
 
   useEffect(() => {
     if (!gameActive) return;
-    const spawn = setInterval(() => {
-      setHearts(prev => [...prev, { id: Date.now(), x: Math.random() * 90, y: -10 }]);
-    }, 1000);
-
-    const fall = setInterval(() => {
-      setHearts(prev => prev.map(h => ({ ...h, y: h.y + 2 })).filter(h => {
-        if (h.y > 90 && Math.abs(h.x - playerPos) < 10) { setScore(s => s + 1); return false; }
-        return h.y < 110;
-      }));
-    }, 50);
-
+    const spawn = setInterval(() => setHearts(h=>[...h,{id:Date.now(),x:Math.random()*80+10,y:-10}]), 800);
+    const fall = setInterval(() => setHearts(h=>h.map(h=>({...h,y:h.y+3})).filter(h=>{
+      if (h.y>80 && Math.abs(h.x-playerPos)<15) { setScore(s=>s+1); return false; }
+      return h.y<110;
+    })), 50);
     return () => { clearInterval(spawn); clearInterval(fall); };
   }, [gameActive, playerPos]);
 
   useEffect(() => {
-    const handleKey = (e) => {
+    const k = e => {
       if (!gameActive) return;
-      if (e.key === 'ArrowLeft') setPlayerPos(p => Math.max(5, p - 8));
-      if (e.key === 'ArrowRight') setPlayerPos(p => Math.min(95, p + 8));
+      if (e.key==='ArrowLeft') setPlayerPos(p=>Math.max(10,p-10));
+      if (e.key==='ArrowRight') setPlayerPos(p=>Math.min(90,p+10));
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    window.addEventListener('keydown',k);
+    return ()=>window.removeEventListener('keydown',k);
   }, [gameActive]);
 
-  const maze = [
-    [0,0,1,1,1,1],
-    [1,0,0,0,0,1],
-    [1,1,1,0,1,1],
-    [1,0,0,0,0,0],
-    [1,0,1,1,1,0],
-    [1,0,0,0,0,2]
-  ];
-
-  const handleMazeMove = (dx, dy) => {
-    const nx = mazePlayerPos.x + dx;
-    const ny = mazePlayerPos.y + dy;
-    if (nx >= 0 && nx < 6 && ny >= 0 && ny < 6 && maze[ny][nx] !== 1) {
-      setMazePlayerPos({ x: nx, y: ny });
-      if (maze[ny][nx] === 2) setMazeSolved(true);
+  const maze = [[0,0,1,1,1,1],[1,0,0,0,0,1],[1,1,1,0,1,1],[1,0,0,0,0,0],[1,0,1,1,1,0],[1,0,0,0,0,2]];
+  const move = (dx,dy) => {
+    const x = mazePos.x+dx, y = mazePos.y+dy;
+    if (x>=0&&x<6&&y>=0&&y<6&&maze[y][x]!==1) {
+      setMazePos({x,y});
+      if (maze[y][x]===2) setMazeSolved(true);
     }
   };
 
-  const downloadNote = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 800; canvas.height = 600;
-    const ctx = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0,0,800,600);
-    grad.addColorStop(0, '#fce7f3'); grad.addColorStop(1, '#fbcfe8');
-    ctx.fillStyle = grad; ctx.fillRect(0,0,800,600);
-    ctx.fillStyle = '#ec4899'; ctx.font = 'bold 40px Arial'; ctx.fillText('Message for You ❤️', 50, 80);
-    ctx.fillStyle = '#1f2937'; ctx.font = '24px cursive';
-    noteText.split('\n').forEach((line, i) => ctx.fillText(line, 60, 140 + i*50));
-    ctx.fillStyle = '#ec4899'; ctx.font = 'italic 28px Arial'; ctx.fillText('- From Saraaa ❤️', 60, 540);
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL(); a.download = 'love-from-saraaa.png'; a.click();
+  const download = () => {
+    const c = document.createElement('canvas');
+    c.width=800; c.height=600;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0,0,0,600);
+    g.addColorStop(0,'#fce7f3'); g.addColorStop(1,'#f9a8d4');
+    ctx.fillStyle=g; ctx.fillRect(0,0,800,600);
+    ctx.fillStyle='#ec4899'; ctx.font='bold 48px Arial'; ctx.fillText('For My Saraaa ❤️',60,100);
+    ctx.fillStyle='#1e293b'; ctx.font='28px cursive';
+    note.split('\n').forEach((l,i)=>ctx.fillText(l,80,180+i*60));
+    ctx.fillStyle='#ec4899'; ctx.font='italic 32px Arial'; ctx.fillText('- Forever Yours ❤️',80,520);
+    const a=document.createElement('a'); a.href=c.toDataURL(); a.download='saraaa-love.png'; a.click();
   };
 
-  if (!isUnlocked) {
+  // Lock Screen
+  if (!unlocked) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center animate-fade-in">
-          <Lock className="w-20 h-20 mx-auto text-pink-600 animate-pulse mb-6" />
-          <h1 className="text-4xl font-bold mb-4">Welcome Saraaa ❤️</h1>
-          <p className="text-lg mb-6">Win 3 games to unlock my heart!</p>
-          <div className="flex justify-center gap-4 mb-6">
-            {[0,1,2].map(i => <div key={i} className={`w-12 h-12 rounded-full ${i < wins ? 'bg-pink-600 animate-pulse' : 'bg-gray-300'}`} />)}
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pink-300 to-rose-400">
+        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-lg w-full text-center">
+          <Lock className="w-24 h-24 mx-auto text-pink-600 pulse mb-8" />
+          <h1 className="text-5xl font-bold text-gray-800 mb-4">Saraaa ❤️</h1>
+          <p className="text-2xl mb-8">Win 3 games to unlock my heart</p>
+          <div className="flex justify-center gap-4 mb-8">
+            {[0,1,2].map(i=><div key={i} className={`w-12 h-12 rounded-full ${i<wins?'bg-pink-600 pulse':'bg-gray-300'}`}/>)}
           </div>
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            {board.map((cell, i) => (
-              <button key={i} onClick={() => handleSquareClick(i)} disabled={gameOver || cell}
-                className="aspect-square bg-gradient-to-br from-pink-100 to-rose-100 rounded-3xl text-7xl font-bold shadow-xl border-8 border-pink-300 disabled:opacity-60">
-                {cell === 'X' ? <span className="text-pink-600">X</span> : cell === 'O' ? <span className="text-blue-600">O</span> : ''}
+          <div className="grid grid-cols-3 gap-6 mb-10">
+            {board.map((c,i)=>(
+              <button key={i} onClick={()=>click(i)} disabled={gameOver||c}
+                className="aspect-square bg-gradient-to-br from-pink-100 to-rose-100 rounded-3xl text-8xl font-bold shadow-2xl hover:shadow-pink-400/50 border-8 border-pink-300 disabled:opacity-60">
+                {c==='X'?<span className="text-pink-600">X</span>:c==='O'?<span className="text-blue-600">O</span>:''}
               </button>
             ))}
           </div>
-          {gameOver && <p className="text-2xl font-bold mb-6 text-pink-700 animate-bounce">
-            {winner === 'X' ? 'You Won! ❤️' : 'Try Again!'}
-          </p>}
-          <button onClick={resetGame} className="w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white py-6 rounded-3xl text-2xl font-bold shadow-2xl">
+          {gameOver && <p className="text-3xl font-bold mb-8 text-pink-700 pulse">{winner==='X'?'You Won!':'Try again!'}</p>}
+          <button onClick={reset} className="w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white py-6 rounded-3xl text-3xl font-bold shadow-2xl">
             Play Again
           </button>
         </div>
@@ -207,109 +162,95 @@ const SaraaaWebsite = () => {
     );
   }
 
-  const NavBar = () => (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-4 border-pink-300 z-50 md:static">
+  const Nav = () => (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-2xl z-50 md:static">
       <div className="flex justify-around py-4">
-        {[{id:'home',icon:Home,label:'Home'},{id:'music',icon:Music,label:'Music'},{id:'games',icon:Gamepad2,label:'Games'},{id:'notes',icon:FileText,label:'Notes'}].map(item => (
-          <button key={item.id} onClick={() => setCurrentPage(item.id)}
-            className={`flex flex-col items-center gap-2 px-6 py-4 rounded-2xl transition-all ${currentPage === item.id ? 'bg-pink-100 text-pink-700' : 'text-gray-600'}`}>
-            <item.icon className="w-8 h-8" />
-            <span className="text-sm font-bold">{item.label}</span>
+        {[{p:'home',i:Home,l:'Home'},{p:'music',i:Music,l:'Music'},{p:'games',i:Gamepad2,l:'Games'},{p:'notes',i:FileText,l:'Notes'}].map(x=>(
+          <button key={x.p} onClick={()=>setPage(x.p)}
+            className={`flex flex-col items-center px-6 py-3 rounded-2xl transition-all ${page===x.p?'bg-pink-200 text-pink-700':'text-gray-600'}`}>
+            <x.i className="w-8 h-8" /><span className="text-xs font-bold">{x.l}</span>
           </button>
         ))}
       </div>
     </nav>
   );
 
-  if (currentPage === 'home') return (
-    <div className="min-h-screen pb-24 md:pb-0 bg-gradient-to-br from-pink-100 to-rose-100">
-      <NavBar />
-      <div className="p-8 text-center pt-20 animate-fade-in">
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent animate-pulse mb-8">
-          You Unlocked My Heart, Saraaa! ❤️
-        </h1>
-        <Heart className="w-40 h-40 mx-auto text-pink-600 fill-pink-600 animate-bounce mb-10" />
+  if (page==='home') return (
+    <div className="min-h-screen pb-20 md:pb-0 bg-gradient-to-br from-pink-100 to-rose-100">
+      <Nav/>
+      <div className="text-center pt-20 px-8">
+        <h1 className="text-6xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent pulse">You Did It Saraaa! ❤️</h1>
+        <Heart className="w-40 h-40 mx-auto my-12 text-pink-600 fill-pink-600 bounce"/>
         <p className="text-4xl font-bold text-pink-700">"You're my forever"</p>
       </div>
     </div>
   );
 
-  if (currentPage === 'music') return (
-    <div className="min-h-screen pb-24 md:pb-0">
-      <NavBar />
-      <div className="p-8 pt-20 max-w-2xl mx-auto space-y-6">
-        <h1 className="text-5xl font-bold text-center mb-10">Our Songs ❤️</h1>
-        {songs.map((song, i) => (
-          <div key={i} className={`bg-gradient-to-r ${song.color} rounded-3xl p-8 text-white shadow-2xl text-center cursor-pointer hover:scale-105 transition-all`}>
-            <h3 className="text-3xl font-bold">{song.title}</h3>
-            <p className="text-xl opacity-90">{song.artist}</p>
+  if (page==='music') return (
+    <div className="min-h-screen pb-20 md:pb-0">
+      <Nav/>
+      <div className="p-10 text-center">
+        <h1 className="text-5xl font-bold mb-12">Our Songs ❤️</h1>
+        {["Perfect – Ed Sheeran","Lover – Taylor Swift","All of Me – John Legend","Thinking Out Loud – Ed Sheeran","A Thousand Years – Christina Perri"].map((s,i)=>(
+          <div key={i} className="bg-gradient-to-r from-pink-500 to-rose-600 text-white p-8 rounded-3xl mb-6 shadow-2xl text-2xl font-bold">
+            {s}
           </div>
         ))}
       </div>
     </div>
   );
 
-  if (currentPage === 'games') return (
-    <div className="min-h-screen pb-24 md:pb-0">
-      <NavBar />
-      <div className="p-8 pt-20 space-y-12">
+  if (page==='games') return (
+    <div className="min-h-screen pb-20 md:pb-0">
+      <Nav/>
+      <div className="p-10 space-y-12">
         <div className="bg-white rounded-3xl shadow-2xl p-8">
-          <h2 className="text-4xl font-bold text-pink-600 text-center mb-6">Collect Hearts ❤️</h2>
-          <p className="text-center text-3xl font-bold mb-6">Score: {score}</p>
+          <h2 className="text-4xl font-bold text-pink-600 text-center mb-6">Collect Hearts</h2>
+          <p className="text-center text-3xl font-bold text-pink-700 mb-6">Score: {score}</p>
           <div className="relative h-96 bg-gradient-to-b from-sky-200 to-pink-300 rounded-3xl overflow-hidden">
-            <div className="absolute bottom-8 w-20 h-20 bg-red-600 rounded-full flex items-center justify-center" style={{left: `${playerPos}%`, transform: 'translateX(-50%)'}}>
-              <Heart className="w-14 h-14 text-white fill-white" />
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-20 h-20 bg-red-600 rounded-full flex items-center justify-center">
+              <Heart className="w-14 h-14 text-white fill-white"/>
             </div>
-            {hearts.map(h => (
-              <div key={h.id} className="absolute" style={{left: `${h.x}%`, top: `${h.y}%`}}>
-                <Heart className="w-10 h-10 text-pink-600 fill-pink-600 animate-pulse" />
-              </div>
-            ))}
+            {hearts.map(h=><div key={h.id} style={{left:`${h.x}%`,top:`${h.y}%`}} className="absolute"><Heart className="w-12 h-12 text-pink-600 fill-pink-600 bounce"/></div>)}
           </div>
-          <button onClick={() => { setGameActive(!gameActive); if(!gameActive){setScore(0);setHearts([])} }}
-            className="mt-8 w-full py-6 bg-green-600 text-white text-3xl font-bold rounded-3xl">
-            {gameActive ? 'Stop' : 'Start'}
+          <button onClick={()=>{setGameActive(!gameActive); if(!gameActive){setScore(0);setHearts([])}}} 
+            className="mt-8 w-full py-6 bg-green-600 text-white text-3xl rounded-3xl font-bold">
+            {gameActive?'Stop':'Start'}
           </button>
         </div>
 
         <div className="bg-white rounded-3xl shadow-2xl p-8">
-          <h2 className="text-4xl font-bold text-purple-600 text-center mb-6">Love Maze</h2>
-          {mazeSolved && <p className="text-3xl text-pink-600 text-center mb-6 animate-bounce">You Found Me Forever! ❤️</p>}
+          <h2 className="text-4xl font-bold text-purple-600 text-center mb-6">Find Me</h2>
+          {mazeSolved && <p className="text-3xl text-pink-600 text-center mb-8 bounce">You Found Me Forever! ❤️</p>}
           <div className="grid grid-cols-6 gap-2 mb-8">
-            {maze.map((row,y) => row.map((cell,x) => (
-              <div key={`${x}-${y}`} className={`aspect-square rounded-xl flex items-center justify-center text-4xl ${cell===1?'bg-black':cell===2?'bg-gradient-to-br from-pink-600 to-rose-600 text-white':'bg-white border-2 border-purple-300'}`}>
-                {mazePlayerPos.x===x && mazePlayerPos.y===y && <Heart className="w-10 h-10 text-red-600 fill-red-600 animate-pulse" />}
-                {cell===2 && '❤️'}
+            {maze.map((r,y)=>r.map((c,x)=>(
+              <div key={`${x}-${y}`} className={`aspect-square rounded-xl flex items-center justify-center text-4xl ${c===1?'bg-black':c===2?'bg-gradient-to-br from-pink-600 to-rose-600 text-white':'bg-white border-2 border-purple-300'}`}>
+                {mazePos.x===x && mazePos.y===y && <Heart className="w-10 h-10 text-red-600 fill-red-600 pulse"/>}
               </div>
             )))}
           </div>
           <div className="grid grid-cols-3 gap-4 text-5xl">
-            <div/>
-            <button onClick={() => handleMazeMove(0,-1)} className="bg-purple-700 text-white py-6 rounded-3xl">↑</button>
-            <div/>
-            <button onClick={() => handleMazeMove(-1,0)} className="bg-purple-700 text-white py-6 rounded-3xl">←</button>
-            <button onClick={() => {setMazePlayerPos({x:0,y:0});setMazeSolved(false)}} className="bg-pink-700 text-white py-6 rounded-3xl text-xl">Reset</button>
-            <button onClick={() => handleMazeMove(1,0)} className="bg-purple-700 text-white py-6 rounded-3xl">→</button>
-            <div/>
-            <button onClick={() => handleMazeMove(0,1)} className="bg-purple-700 text-white py-6 rounded-3xl">↓</button>
+            <div/><button onClick={()=>move(0,-1)} className="bg-purple-700 text-white py-6 rounded-3xl">↑</button><div/>
+            <button onClick={()=>move(-1,0)} className="bg-purple-700 text-white py-6 rounded-3xl">←</button>
+            <button onClick={()=>{setMazePos({x:0,y:0});setMazeSolved(false)}} className="bg-pink-700 text-white py-6 rounded-3xl text-xl">Reset</button>
+            <button onClick={()=>move(1,0)} className="bg-purple-700 text-white py-6 rounded-3xl">→</button>
+            <div/><button onClick={()=>move(0,1)} className="bg-purple-700 text-white py-6 rounded-3xl">↓</button><div/>
           </div>
         </div>
       </div>
     </div>
   );
 
-  if (currentPage === 'notes') return (
-    <div className="min-h-screen pb-24 md:pb-0">
-      <NavBar />
-      <div className="p-8 pt-20 max-w-2xl mx-auto">
-        <h1 className="text-5xl font-bold text-center mb-10">Write Me Anything ❤️</h1>
-        <textarea value={noteText} onChange={e => setNoteText(e.target.value)}
-          placeholder="Your beautiful message here..."
-          className="w-full h-96 p-8 text-2xl bg-white border-8 border-pink-300 rounded-3xl focus:border-pink-600 outline-none"
-          style={{fontFamily:'cursive'}} />
-        <button onClick={downloadNote} disabled={!noteText.trim()}
-          className="mt-8 w-full py-8 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-3xl font-bold rounded-3xl shadow-2xl flex items-center justify-center gap-4 disabled:opacity-50">
-          <Download className="w-12 h-12" /> Download as Image
+  if (page==='notes') return (
+    <div className="min-h-screen pb-20 md:pb-0">
+      <Nav/>
+      <div className="p-10 max-w-2xl mx-auto">
+        <h1 className="text-5xl font-bold text-center mb-12">Write Me Anything ❤️</h1>
+        <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Your heart here..."
+          className="w-full h-96 p-10 text-2xl bg-white border-8 border-pink-300 rounded-3xl focus:border-pink-600 outline-none" style={{fontFamily:'cursive'}}/>
+        <button onClick={download} disabled={!note.trim()} 
+          className="mt-10 w-full py-8 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-4xl font-bold rounded-3xl shadow-2xl flex items-center justify-center gap-4 disabled:opacity-50">
+          <Download className="w-12 h-12"/> Download as Image
         </button>
       </div>
     </div>
@@ -318,7 +259,10 @@ const SaraaaWebsite = () => {
   return null;
 };
 
-ReactDOM.createRoot(document.getElementById('root')).render(<SaraaaWebsite />);
+// Render
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(SaraaaWebsite));
+
 </script>
 
 </body>
