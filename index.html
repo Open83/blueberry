@@ -1,219 +1,292 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>For My Saraaa</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For My Saraaa ❤️</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>Heart</text></svg>">
   
-  <!-- React 18 Production -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <!-- Babel for JSX → but we won't use JSX to avoid error #130 -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-  
-  <!-- Tailwind CDN + Warning Killed Forever -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { logLevel: 'silent' };
-    // Hide Babel warning too
-    window.addEventListener('DOMContentLoaded', () => {
-      const style = document.createElement('style');
-      style.innerHTML = '.babel-suggestion { display: none !important; }';
-      document.head.appendChild(style);
-    });
-  </script>
 
   <style>
-    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
-    @keyframes fade-in { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-bounce { animation: bounce 2s infinite; }
-    .animate-pulse { animation: pulse 1.8s infinite; }
-    .animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+    body { min-height:100vh; background: linear-gradient(135deg, #fce7f3, #fbcfe8, #f9a8d4); color:#333; overflow-x:hidden; }
+    .container { max-width:100%; padding:20px; }
+    .lock-screen, .page { display:none; min-height:100vh; }
+    .active { display:block !important; }
+    .card { background:white; border-radius:24px; padding:30px; box-shadow:0 20px 40px rgba(236,72,153,0.3); text-align:center; }
+    .btn { padding:16px 32px; border:none; border-radius:50px; font-size:20px; font-weight:bold; cursor:pointer; transition:all 0.3s; }
+    .btn-pink { background:linear-gradient(to right, #ec4899, #f43f5e); color:white; }
+    .btn-pink:hover { transform:scale(1.05); box-shadow:0 10px 30px rgba(236,72,153,0.4); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+    .cell { aspect-ratio:1; background:linear-gradient(135deg, #fdf2f8, #fce7f3); border-radius:20px; font-size:60px; font-weight:bold; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(0,0,0,0.1); }
+    .heart { color:#ec4899; animation:pulse 1.5s infinite; }
+    .win-heart { width:50px; height:50px; background:#ec4899; border-radius:50%; margin:0 10px; display:inline-block; }
+    .win-heart.filled { background:#ec4899; animation:pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
+    @keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-20px); } }
+    .bounce { animation:bounce 2s infinita; }
+    .nav { position:fixed; bottom:0; left:0; right:0; background:white; padding:15px 0; box-shadow:0 -5px 20px rgba(0,0,0,0.1); display:flex; justify-content:space-around; z-index:999; border-top:4px solid #ec4899; }
+    .nav-btn { background:none; border:none; font-size:28px; cursor:pointer; padding:10px; border-radius:50%; }
+    .nav-btn.active { background:#fce7f3; color:#ec4899; }
+    .song-card { background:linear-gradient(135deg, #ec4899, #f43f5e); color:white; padding:25px; border-radius:24px; margin:15px 0; text-align:left; box-shadow:0 10px 30px rgba(236,72,153,0.3); cursor:pointer; }
+    .game-area { position:relative; height:400px; background:linear-gradient(to bottom, #fdb8d0, #fce7f3); border-radius:24px; overflow:hidden; border:8px solid #ec4899; }
+    .player { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); font-size:50px; }
+    .falling-heart { position:absolute; font-size:40px; animation:fall linear forwards; }
+    @keyframes fall { to { transform:translateY(500px); } }
+    .maze { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; background:#e9d5ff; padding:20px; border-radius:20px; }
+    .maze-cell { aspect-ratio:1; background:#fff; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:28px; }
+    .wall { background:#333 !important; }
+    .goal { background:linear-gradient(135deg, #ec4899, #f43f5e) !important; color:white; }
+    textarea { width:100%; height:300px; padding:20px; border:8px solid #ec4899; border-radius:24px; font-family:cursive; font-size:22px; resize:none; outline:none; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100">
+<body>
 
-<div id="root"></div>
+<div id="lockScreen" class="lock-screen active">
+  <div class="container">
+    <div class="card">
+      <i data-lucide="lock" class="heart" style="width:80px;height:80px;"></i>
+      <h1 style="font-size:48px;margin:20px 0;">Saraaa ❤️</h1>
+      <p style="font-size:24px;margin-bottom:30px;">Win 3 games to unlock my heart</p>
+      
+      <div style="display:flex;justify-content:center;margin:30px 0;">
+        <div id="heart1" class="win-heart"></div>
+        <div id="heart2" class="win-heart"></div>
+        <div id="heart3" class="win-heart"></div>
+      </div>
+      
+      <div class="grid-3" id="board"></div>
+      
+      <div id="gameStatus" style="font-size:28px;font-weight:bold;margin:30px 0;color:#ec4899;"></div>
+      
+      <button class="btn btn-pink" onclick="resetGame()">Play Again</button>
+    </div>
+  </div>
+</div>
 
-<script type="text/javascript">
-// No JSX → No React error #130 → 100% Clean Console
-const { useState, useEffect, useRef } = React;
-const { Heart, Music, Play, Pause, Download, Home, Gamepad2, FileText, Lock } = window.lucide;
+<div id="homePage" class="page">
+  <div class="container" style="padding-top:80px;text-align:center;">
+    <h1 style="font-size:56px;background:linear-gradient(to right,#ec4899,#f43f5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">You Did It Saraaa! ❤️</h1>
+    <i data-lucide="heart" class="heart bounce" style="width:150px;height:150px;margin:40px 0;"></i>
+    <p style="font-size:32px;">You're my forever ❤️</p>
+  </div>
+</div>
 
-const e = React.createElement;
+<div id="musicPage" class="page">
+  <div class="container" style="padding-top:80px;">
+    <h1 style="text-align:center;font-size:48px;margin-bottom:40px;">Our Songs ❤️</h1>
+    <div class="song-card" onclick="togglePlay(0)"><div style="font-size:32px;font-weight:bold;">Perfect</div><div>Ed Sheeran</div></div>
+    <div class="song-card" onclick="togglePlay(1)"><div style="font-size:32px;font-weight:bold;">Lover</div><div>Taylor Swift</div></div>
+    <div class="song-card" onclick="togglePlay(2)"><div style="font-size:32px;font-weight:bold;">All of Me</div><div>John Legend</div></div>
+    <div class="song-card" onclick="togglePlay(3)"><div style="font-size:32px;font-weight:bold;">Thinking Out Loud</div><div>Ed Sheeran</div></div>
+    <div class="song-card" onclick="togglePlay(4)"><div style="font-size:32px;font-weight:bold;">A Thousand Years</div><div>Christina Perri</div></div>
+  </div>
+</div>
 
-const SaraaaWebsite = () => {
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [currentPage, setCurrentPage] = useState('lock');
-  const [wins, setWins] = useState(0);
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
-  const [gameOver, setGameOver] = useState(false);
-  const [winner, setWinner] = useState(null);
-  const [currentSong, setCurrentSong] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playerPos, setPlayerPos] = useState(50);
-  const [hearts, setHearts] = useState([]);
-  const [score, setScore] = useState(0);
-  const [gameActive, setGameActive] = useState(false);
-  const [mazePlayerPos, setMazePlayerPos] = useState({ x: 0, y: 0 });
-  const [mazeSolved, setMazeSolved] = useState(false);
-  const [noteText, setNoteText] = useState('');
+<div id="gamesPage" class="page">
+  <div class="container" style="padding-top:80px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;">
+      <div class="card">
+        <h2 style="font-size:36px;text-align:center;">Collect Hearts</h2>
+        <p style="text-align:center;margin:20px 0;font-size:20px;">Score: <span id="score">0</span></p>
+        <div class="game-area" id="heartGame">
+          <div class="player">Heart</div>
+        </div>
+        <button class="btn btn-pink" style="margin-top:20px;width:100%;" onclick="toggleHeartGame()">Start Game</button>
+      </div>
+      
+      <div class="card">
+        <h2 style="font-size:36px;text-align:center;">Love Maze</h2>
+        <div class="maze" id="maze"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;">
+          <div></div>
+          <button class="btn btn-pink" onclick="move('up')">Up Arrow</button>
+          <div></div>
+          <button class="btn btn-pink" onclick="move('left')">Left Arrow</button>
+          <button class="btn btn-pink" onclick="resetMaze()">Reset</button>
+          <button class="btn btn-pink" onclick="move('right')">Right Arrow</button>
+          <div></div>
+          <button class="btn btn-pink" onclick="move('down')">Down Arrow</button>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  const songs = [
-    { title: "Perfect", artist: "Ed Sheeran", color: "from-pink-400 to-rose-600" },
-    { title: "Lover", artist: "Taylor Swift", color: "from-purple-400 to-pink-600" },
-    { title: "All of Me", artist: "John Legend", color: "from-blue-400 to-purple-600" },
-    { title: "Thinking Out Loud", artist: "Ed Sheeran", color: "from-red-400 to-pink-600" },
-    { title: "A Thousand Years", artist: "Christina Perri", color: "from-rose-400 to-red-600" }
-  ];
+<div id="notesPage" class="page">
+  <div class="container" style="padding-top:80px;">
+    <h1 style="text-align:center;font-size:48px;margin-bottom:40px;">Write Me Anything ❤️</h1>
+    <div class="card">
+      <textarea id="noteText" placeholder="Your heart here..."></textarea>
+      <p style="text-align:right;font-style:italic;margin:20px 0;font-size:24px;">- With love, Saraaa ❤️</p>
+      <button class="btn btn-pink" style="width:100%;" onclick="downloadNote()">Download as Image</button>
+    </div>
+  </div>
+</div>
 
-  const checkWinner = (s) => {
-    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    for (let [a,b,c] of lines) if (s[a] && s[a] === s[b] && s[a] === s[c]) return s[a];
-    return null;
-  };
+<div class="nav">
+  <button class="nav-btn active" onclick="showPage('home')"><i data-lucide="home"></i></button>
+  <button class="nav-btn" onclick="showPage('music')"><i data-lucide="music"></i></button>
+  <button class="nav-btn" onclick="showPage('games')"><i data-lucide="gamepad-2"></i></button>
+  <button class="nav-btn" onclick="showPage('notes')"><i data-lucide="file-text"></i></button>
+</div>
 
-  const aiMove = () => {
-    const empty = board.map((v,i) => v === null ? i : null).filter(x => x !== null);
-    return empty.length ? empty[Math.floor(Math.random() * empty.length)] : null;
-  };
-
-  const handleClick = (i) => {
-    if (board[i] || gameOver || !isPlayerTurn) return;
-    const b = [...board]; b[i] = 'X'; setBoard(b);
-    const w = checkWinner(b);
-    if (w === 'X') { setWinner('X'); setGameOver(true); setWins(wins + 1); if (wins + 1 >= 3) setTimeout(() => { setIsUnlocked(true); setCurrentPage('home'); }, 2000); return; }
-    if (!b.includes(null)) { setGameOver(true); return; }
-    setIsPlayerTurn(false);
-    setTimeout(() => {
-      const m = aiMove();
-      if (m !== null) { b[m] = 'O'; setBoard(b); if (checkWinner(b) === 'O') { setWinner('O'); setGameOver(true); setWins(0); } }
-      setIsPlayerTurn(true);
-    }, 500);
-  };
-
-  const resetTicTacToe = () => { setBoard(Array(9).fill(null)); setGameOver(false); setWinner(null); setIsPlayerTurn(true); };
-
-  useEffect(() => {
-    if (!gameActive) return;
-    const spawn = setInterval(() => setHearts(h => [...h, {id: Date.now(), x: Math.random()*85 + 5, y: -10}]), 1000);
-    const fall = setInterval(() => setHearts(h => h.map(heart => ({...heart, y: heart.y + 2})).filter(heart => {
-      if (heart.y > 85 && Math.abs(heart.x - playerPos) < 10) { setScore(s => s + 1); return false; }
-      return heart.y < 110;
-    })), 40);
-    return () => { clearInterval(spawn); clearInterval(fall); };
-  }, [gameActive, playerPos]);
-
-  useEffect(() => {
-    const k = e => { if (!gameActive) return; if (e.key === 'ArrowLeft') setPlayerPos(p => Math.max(5, p - 8)); if (e.key === 'ArrowRight') setPlayerPos(p => Math.min(95, p + 8)); };
-    window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k);
-  }, [gameActive]);
-
+<script>
+  lucide.createIcons();
+  
+  let wins = 0, board = Array(9).fill(null), isPlayerTurn = true, gameOver = false;
+  let playerPos = 50, hearts = [], score = 0, gameActive = false;
+  let mazePos = {x:0,y:0}, mazeSolved = false;
   const maze = [[0,0,1,1,1,1],[1,0,0,0,0,1],[1,1,1,0,1,1],[1,0,0,0,0,0],[1,0,1,1,1,0],[1,0,0,0,0,2]];
-  const moveMaze = (dx, dy) => {
-    const nx = mazePlayerPos.x + dx, ny = mazePlayerPos.y + dy;
-    if (nx >= 0 && nx < 6 && ny >= 0 && ny < 6 && maze[ny][nx] !== 1) {
-      setMazePlayerPos({x: nx, y: ny});
-      if (maze[ny][nx] === 2) setMazeSolved(true);
-    }
-  };
 
-  const downloadNote = () => {
-    const canvas = document.createElement('canvas'); canvas.width = 800; canvas.height = 600;
-    const ctx = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0,0,800,600);
-    grad.addColorStop(0,'#fce7f3'); grad.addColorStop(1,'#fbcfe8');
-    ctx.fillStyle = grad; ctx.fillRect(0,0,800,600);
-    ctx.fillStyle = '#ec4899'; ctx.font = 'bold 48px Arial'; ctx.fillText('Message for You', 60, 100);
-    ctx.fillStyle = '#1f2937'; ctx.font = '28px cursive';
-    noteText.split('\n').forEach((l,i) => ctx.fillText(l, 80, 180 + i*70));
-    ctx.fillStyle = '#ec4899'; ctx.font = 'italic 36px Arial'; ctx.fillText('- From Saraaa', 80, 520);
-    const a = document.createElement('a'); a.href = canvas.toDataURL(); a.download = 'saraaa-love-message.png'; a.click();
-  };
-
-  if (!isUnlocked) {
-    return e('div', {className: 'min-h-screen bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center p-4'},
-      e('div', {className: 'bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center animate-fade-in'},
-        e(Lock, {className: 'w-24 h-24 mx-auto text-pink-600 animate-pulse mb-6'}),
-        e('h1', {className: 'text-5xl font-bold mb-4'}, 'Welcome Saraaa'),
-        e('p', {className: 'text-2xl mb-8'}, 'Win 3 games to unlock my heart'),
-        e('div', {className: 'flex justify-center gap-6 mb-8'}, [...Array(3)].map((_,i) => e('div', {key:i, className: `w-16 h-16 rounded-full ${i < wins ? 'bg-pink-600 animate-pulse' : 'bg-gray-300'}`}))),
-        e('div', {className: 'grid grid-cols-3 gap-6 mb-10'},
-          board.map((cell,i) => e('button', {key:i, onClick:() => handleClick(i), disabled: gameOver || cell, className: 'aspect-square bg-gradient-to-br from-pink-100 to-rose-100 rounded-3xl text-8xl font-bold shadow-2xl border-8 border-pink-300 disabled:opacity-60'},
-            cell === 'X' ? e('span', {className: 'text-pink-600'}, 'X') : cell === 'O' ? e('span', {className: 'text-blue-600'}, 'O') : ''
-          ))
-        ),
-        gameOver && e('p', {className: 'text-3xl font-bold mb-8 animate-bounce text-pink-700'}, winner === 'X' ? 'You Won!' : 'Try Again!'),
-        e('button', {onClick: resetTicTacToe, className: 'w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white py-6 rounded-3xl text-3xl font-bold'}, 'Play Again')
-      )
-    );
+  function initBoard() {
+    const boardEl = document.getElementById('board');
+    boardEl.innerHTML = '';
+    board.forEach((cell,i) => {
+      const btn = document.createElement('button');
+      btn.className = 'cell';
+      btn.innerHTML = cell || '';
+      btn.onclick = () => makeMove(i);
+      boardEl.appendChild(btn);
+    });
   }
 
-  const Nav = () => e('nav', {className: 'fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-4 border-pink-300 z-50 md:sticky md:top-0'},
-    e('div', {className: 'flex justify-around py-4'}, [
-      {id:'home',i:Home,l:'Home'}, {id:'music',i:Music,l:'Music'}, {id:'games',i:Gamepad2,l:'Games'}, {id:'notes',i:FileText,l:'Notes'}
-    ].map(x => e('button', {key:x.id, onClick:() => setCurrentPage(x.id), className: `flex flex-col items-center gap-2 px-6 py-4 rounded-2xl ${currentPage === x.id ? 'bg-pink-100 text-pink-700' : 'text-gray-600'}`},
-      e(x.i, {className: 'w-10 h-10'}), e('span', {className: 'text-sm font-bold'}, x.l)
-    )))
-  );
+  function makeMove(i) {
+    if (board[i] || gameOver || !isPlayerTurn) return;
+    board[i] = 'X'; initBoard();
+    if (checkWin('X')) { endGame('You Won! ❤️'); wins++; updateHearts(); if(wins>=3) setTimeout(unlock,2000); return; }
+    if (board.full()) { endGame('Try Again!'); return; }
+    isPlayerTurn = false;
+    setTimeout(aiMove, 600);
+  }
 
-  // Rest of pages (home, music, games, notes) with same e() syntax — shortened for space but fully working
-  // I kept only lock screen above to show fix — full code with all pages below
+  function aiMove() {
+    const empty = board.map((v,i)=>v===null?i:null).filter(x=>x!==null);
+    if (empty.length) { board[empty[Math.floor(Math.random()*empty.length)]] = 'O'; initBoard(); }
+    if (checkWin('O')) { endGame('Try Again!'); wins = 0; updateHearts(); }
+    isPlayerTurn = true;
+  }
 
-  return e('div', null, e(Nav), "Full website unlocked! All pages working perfectly");
-};
+  function checkWin(p) {
+    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return lines.some(l => l.every(i => board[i]===p));
+  }
 
-// FULL CODE WITH ALL PAGES (same logic, just using e() instead of JSX)
-ReactDOM.createRoot(document.getElementById('root')).render(e(SaraaaWebsite));
+  function endGame(msg) {
+    gameOver = true;
+    document.getElementById('gameStatus').textContent = msg;
+  }
+
+  function resetGame() {
+    board = Array(9).fill(null); gameOver = false; isPlayerTurn = true;
+    document.getElementById('gameStatus').textContent = '';
+    initBoard();
+  }
+
+  function updateHearts() {
+    for(let i=1;i<=3;i++) {
+      document.getElementById(`heart${i}`).className = i<=wins ? 'win-heart filled' : 'win-heart';
+    }
+  }
+
+  function unlock() {
+    document.getElementById('lockScreen').classList.remove('active');
+    showPage('home');
+  }
+
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page+'Page').classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-btn')[['home','music','games','notes'].indexOf(page)].classList.add('active');
+  }
+
+  function toggleHeartGame() {
+    gameActive = !gameActive;
+    if (!gameActive) { hearts = []; score = 0; document.getElementById('score').textContent = '0'; }
+    document.querySelector('#heartGame .player').style.left = playerPos + '%';
+  }
+
+  setInterval(() => {
+    if (gameActive) {
+      hearts.push({x: Math.random()*80+10, y: -10, id: Date.now()});
+      hearts = hearts.filter(h => {
+        h.y += 3;
+        if (h.y > 350 && Math.abs(h.x - playerPos) < 15) { score++; document.getElementById('score').textContent = score; return false; }
+        return h.y < 500;
+      });
+      const area = document.getElementById('heartGame');
+      area.querySelectorAll('.falling-heart').forEach(el => el.remove());
+      hearts.forEach(h => {
+        const heart = document.createElement('div');
+        heart.className = 'falling-heart';
+        heart.innerHTML = 'Heart';
+        heart.style.left = h.x + '%';
+        heart.style.top = h.y + 'px';
+        area.appendChild(heart);
+      });
+    }
+  }, 50);
+
+  document.addEventListener('keydown', e => {
+    if (!gameActive) return;
+    if (e.key === 'ArrowLeft') playerPos = Math.max(10, playerPos - 10);
+    if (e.key === 'ArrowRight') playerPos = Math.min(90, playerPos + 10);
+    document.querySelector('#heartGame .player').style.left = playerPos + '%';
+  });
+
+  function initMaze() {
+    const mazeEl = document.getElementById('maze');
+    mazeEl.innerHTML = '';
+    maze.forEach((row,y) Yah => row.forEach((cell,x) => {
+      const div = document.createElement('div');
+      div.className = 'maze-cell';
+      if (cell === 1) div.classList.add('wall');
+      if (cell === 2) div.classList.add('goal');
+      if (x===mazePos.x && y===mazePos.y) div.innerHTML = 'Heart';
+      mazeEl.appendChild(div);
+    }));
+  }
+
+  function move(dir) {
+    const {x,y} = mazePos;
+    let nx = x, ny = y;
+    if (dir==='up') ny--;
+    if (dir==='down') ny++;
+    if (dir==='left') nx--;
+    if (dir==='right') nx++;
+    if (nx>=0&&nx<6&&ny>=0&&ny<6&&maze[ny][nx]!==1) {
+      mazePos = {x:nx,y:ny};
+      if (maze[ny][nx]===2) mazeSolved = true;
+      initMaze();
+    }
+  }
+
+  function resetMaze() {
+    mazePos = {x:0,y:0}; mazeSolved = false; initMaze();
+  }
+
+  function downloadNote() {
+    const text = document.getElementById('noteText').value;
+    if (!text.trim()) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = 800; canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fce7f3'; ctx.fillRect(0,0,800,600);
+    ctx.fillStyle = '#ec4899'; ctx.font = 'bold 48px Arial'; ctx.fillText('For My Saraaa', 100, 100);
+    ctx.fillStyle = '#333'; ctx.font = '28px cursive';
+    text.split('\n').forEach((line,i) => ctx.fillText(line, 100, 200 + i*60));
+    ctx.fillStyle = '#ec4899'; ctx.font = 'italic 36px Arial'; ctx.fillText('- Forever Yours ❤️', 100, 500);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL(); a.download = 'saraaa-love.png'; a.click();
+  }
+
+  // Init
+  initBoard();
+  updateHearts();
+  initMaze();
 </script>
-
-<!-- FULL WORKING CODE WITH ALL PAGES BELOW (100% CLEAN) -->
-<script type="text/javascript">
-// Paste this full version instead of the short one above
-
-const { useState, useEffect } = React;
-const { Heart, Music, Play, Pause, Download, Home, Gamepad2, FileText, Lock } = window.lucide;
-const e = React.createElement;
-
-const SaraaaWebsite = () => {
-  // ... all useState same as before ...
-
-  // ... all logic same as your original code ...
-
-  if (!isUnlocked) return e('div', {className: 'min-h-screen bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center p-4'}, 
-    // ... full lock screen with e() ...
-  );
-
-  const Nav = () => e('nav', {className: 'fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-4 border-pink-300 z-50 md:sticky md:top-0'}, 
-    e('div', {className: 'flex justify-around py-4'}, 
-      ['home','music','games','notes'].map(p => e('button', {key:p, onClick:() => setCurrentPage(p), className: `flex flex-col items-center gap-2 px-6 py-4 rounded-2xl ${currentPage===p?'bg-pink-100 text-pink-700':'text-gray-600'}`},
-        e(p==='home'?Home:p==='music'?Music:p==='games'?Gamepad2:FileText, {className:'w-10 h-10'}),
-        e('span', {className:'text-sm font-bold'}, p.charAt(0).toUpperCase() + p.slice(1))
-      ))
-    )
-  );
-
-  if (currentPage === 'home') return e('div', {className: 'min-h-screen pb-24 md:pb-0 bg-gradient-to-br from-pink-50 to-rose-50'}, e(Nav),
-    e('div', {className: 'max-w-4xl mx-auto p-8 pt-24 text-center'},
-      e('h1', {className: 'text-6xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent animate-pulse'}, 'You Unlocked My Heart Saraaa!'),
-      e(Heart, {className: 'w-40 h-40 mx-auto my-12 text-pink-600 fill-pink-600 animate-bounce'})
-    )
-  );
-
-  // Music, Games, Notes pages also converted to e() — same look & function
-
-  return e('div', null, e(Nav), "All pages ready!");
-};
-
-ReactDOM.createRoot(document.getElementById('root')).render(e(SaraaaWebsite));
-</script>
-
 </body>
 </html>
