@@ -34,7 +34,7 @@
 
         @keyframes slideProgress {
             0% { width: 0%; }
-            100% { width: 66%; }
+            100% { width: 100%; }
         }
 
         .animate-fade-in {
@@ -328,6 +328,15 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #fbcfe8 0%, #fda4af 100%);
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
         }
 
         .card-image.pink {
@@ -396,7 +405,7 @@
 
         .song-card {
             border-radius: 20px;
-            padding: 25px;
+            padding: 20px;
             margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.3s;
@@ -404,6 +413,24 @@
             justify-content: space-between;
             align-items: center;
             color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .song-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            z-index: 0;
+        }
+
+        .song-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .song-card:hover {
@@ -418,24 +445,55 @@
             box-shadow: 0 0 0 4px white;
         }
 
+        .song-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .song-thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .song-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .song-thumbnail svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
         .song-info {
             flex: 1;
         }
 
         .song-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 5px;
         }
 
         .song-artist {
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.9;
         }
 
         .play-btn {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
             border-radius: 50%;
@@ -443,12 +501,12 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-left: 20px;
+            margin-left: 15px;
         }
 
         .play-icon {
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             fill: white;
         }
 
@@ -463,7 +521,11 @@
         .progress-fill {
             height: 100%;
             background: white;
-            animation: slideProgress 3s infinite;
+            animation: slideProgress 180s linear forwards;
+        }
+
+        .audio-player {
+            display: none;
         }
 
         /* Games Page */
@@ -767,6 +829,9 @@
             .cards-grid { grid-template-columns: repeat(2, 1fr); }
             .card-heart { width: 120px; height: 120px; }
             .heart-game-area { height: 400px; }
+            .song-thumbnail { width: 70px; height: 70px; }
+            .song-title { font-size: 24px; }
+            .song-artist { font-size: 16px; }
         }
 
         @media (min-width: 1024px) {
@@ -863,6 +928,7 @@
             <div class="cards-grid">
                 <div class="card">
                     <div class="card-image pink">
+                        <!-- Replace with your image: <img src="your-image1.jpg" alt="Our moment"> -->
                         <svg class="card-heart animate-pulse" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
@@ -873,6 +939,7 @@
                 
                 <div class="card">
                     <div class="card-image purple">
+                        <!-- Replace with your image: <img src="your-image2.jpg" alt="Forever together"> -->
                         <svg class="card-heart animate-pulse" viewBox="0 0 24 24" fill="currentColor" style="animation-delay: 0.5s;">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
@@ -902,10 +969,19 @@
             </div>
             
             <div class="playlist">
+                <!-- Song 1 -->
                 <div class="song-card" style="background: linear-gradient(135deg, #f472b6 0%, #f43f5e 100%);" data-song="0">
-                    <div class="song-info">
-                        <div class="song-title">Perfect</div>
-                        <div class="song-artist">Ed Sheeran</div>
+                    <div class="song-content">
+                        <div class="song-thumbnail">
+                            <!-- Replace with album art: <img src="song1-cover.jpg" alt="Perfect"> -->
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
+                            </svg>
+                        </div>
+                        <div class="song-info">
+                            <div class="song-title">Perfect</div>
+                            <div class="song-artist">Ed Sheeran</div>
+                        </div>
                     </div>
                     <div class="play-btn">
                         <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -914,10 +990,19 @@
                     </div>
                 </div>
                 
+                <!-- Song 2 -->
                 <div class="song-card" style="background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%);" data-song="1">
-                    <div class="song-info">
-                        <div class="song-title">Lover</div>
-                        <div class="song-artist">Taylor Swift</div>
+                    <div class="song-content">
+                        <div class="song-thumbnail">
+                            <!-- Replace with album art: <img src="song2-cover.jpg" alt="Lover"> -->
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
+                            </svg>
+                        </div>
+                        <div class="song-info">
+                            <div class="song-title">Lover</div>
+                            <div class="song-artist">Taylor Swift</div>
+                        </div>
                     </div>
                     <div class="play-btn">
                         <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -926,10 +1011,19 @@
                     </div>
                 </div>
                 
+                <!-- Song 3 -->
                 <div class="song-card" style="background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);" data-song="2">
-                    <div class="song-info">
-                        <div class="song-title">All of Me</div>
-                        <div class="song-artist">John Legend</div>
+                    <div class="song-content">
+                        <div class="song-thumbnail">
+                            <!-- Replace with album art: <img src="song3-cover.jpg" alt="All of Me"> -->
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
+                            </svg>
+                        </div>
+                        <div class="song-info">
+                            <div class="song-title">All of Me</div>
+                            <div class="song-artist">John Legend</div>
+                        </div>
                     </div>
                     <div class="play-btn">
                         <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -938,10 +1032,19 @@
                     </div>
                 </div>
                 
+                <!-- Song 4 -->
                 <div class="song-card" style="background: linear-gradient(135deg, #f87171 0%, #f472b6 100%);" data-song="3">
-                    <div class="song-info">
-                        <div class="song-title">Thinking Out Loud</div>
-                        <div class="song-artist">Ed Sheeran</div>
+                    <div class="song-content">
+                        <div class="song-thumbnail">
+                            <!-- Replace with album art: <img src="song4-cover.jpg" alt="Thinking Out Loud"> -->
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
+                            </svg>
+                        </div>
+                        <div class="song-info">
+                            <div class="song-title">Thinking Out Loud</div>
+                            <div class="song-artist">Ed Sheeran</div>
+                        </div>
                     </div>
                     <div class="play-btn">
                         <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -950,10 +1053,19 @@
                     </div>
                 </div>
                 
+                <!-- Song 5 -->
                 <div class="song-card" style="background: linear-gradient(135deg, #fb7185 0%, #ef4444 100%);" data-song="4">
-                    <div class="song-info">
-                        <div class="song-title">A Thousand Years</div>
-                        <div class="song-artist">Christina Perri</div>
+                    <div class="song-content">
+                        <div class="song-thumbnail">
+                            <!-- Replace with album art: <img src="song5-cover.jpg" alt="A Thousand Years"> -->
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
+                            </svg>
+                        </div>
+                        <div class="song-info">
+                            <div class="song-title">A Thousand Years</div>
+                            <div class="song-artist">Christina Perri</div>
+                        </div>
                     </div>
                     <div class="play-btn">
                         <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -962,6 +1074,13 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Hidden Audio Elements - Replace with your MP3 files -->
+            <audio id="audio0" class="audio-player" src=""></audio> <!-- Add: src="songs/perfect.mp3" -->
+            <audio id="audio1" class="audio-player" src=""></audio> <!-- Add: src="songs/lover.mp3" -->
+            <audio id="audio2" class="audio-player" src=""></audio> <!-- Add: src="songs/all-of-me.mp3" -->
+            <audio id="audio3" class="audio-player" src=""></audio> <!-- Add: src="songs/thinking-out-loud.mp3" -->
+            <audio id="audio4" class="audio-player" src=""></audio> <!-- Add: src="songs/a-thousand-years.mp3" -->
         </div>
 
         <!-- Games Page -->
@@ -1213,22 +1332,52 @@
                         page.classList.add('hidden');
                     }
                 });
+
+                // Stop all music when leaving music page
+                if (pageName !== 'music') {
+                    stopAllMusic();
+                }
             });
         });
 
-        // Music Player
+        // Music Player with Real Audio
         let currentSong = null;
-        let isPlaying = false;
+        let currentAudio = null;
 
         const songCards = document.querySelectorAll('.song-card');
+        
+        function stopAllMusic() {
+            songCards.forEach(card => {
+                card.classList.remove('active');
+                const progressBar = card.querySelector('.progress-bar');
+                if (progressBar) progressBar.remove();
+                const playIcon = card.querySelector('.play-icon');
+                playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+            });
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            
+            currentSong = null;
+            currentAudio = null;
+        }
         
         songCards.forEach(card => {
             card.addEventListener('click', () => {
                 const songIndex = card.dataset.song;
+                const audio = document.getElementById(`audio${songIndex}`);
                 
-                if (currentSong === songIndex && isPlaying) {
-                    // Pause
-                    isPlaying = false;
+                // Check if audio file exists
+                if (!audio.src || audio.src.endsWith('')) {
+                    alert('Please add the MP3 file for this song in the code!');
+                    return;
+                }
+                
+                if (currentSong === songIndex && currentAudio && !currentAudio.paused) {
+                    // Pause current song
+                    currentAudio.pause();
                     card.classList.remove('active');
                     const progressBar = card.querySelector('.progress-bar');
                     if (progressBar) progressBar.remove();
@@ -1236,17 +1385,14 @@
                     const playIcon = card.querySelector('.play-icon');
                     playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
                 } else {
-                    // Play
-                    songCards.forEach(c => {
-                        c.classList.remove('active');
-                        const pb = c.querySelector('.progress-bar');
-                        if (pb) pb.remove();
-                        const pi = c.querySelector('.play-icon');
-                        pi.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
-                    });
+                    // Stop all other songs
+                    stopAllMusic();
                     
+                    // Play new song
                     currentSong = songIndex;
-                    isPlaying = true;
+                    currentAudio = audio;
+                    currentAudio.play();
+                    
                     card.classList.add('active');
                     
                     const playIcon = card.querySelector('.play-icon');
@@ -1256,6 +1402,15 @@
                     progressBar.className = 'progress-bar';
                     progressBar.innerHTML = '<div class="progress-fill"></div>';
                     card.appendChild(progressBar);
+                    
+                    // Handle song end
+                    currentAudio.onended = () => {
+                        card.classList.remove('active');
+                        progressBar.remove();
+                        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+                        currentSong = null;
+                        currentAudio = null;
+                    };
                 }
             });
         });
@@ -1484,24 +1639,26 @@
             ctx.fillStyle = '#1f2937';
             ctx.font = '20px Arial';
             const lines = noteText.value.split('\n');
-            lines.forEach((line, i) => {
+            let yPos = 130;
+            
+            lines.forEach((line) => {
                 const words = line.split(' ');
                 let currentLine = '';
-                let y = 130 + (i * 30);
                 
                 words.forEach(word => {
                     const testLine = currentLine + word + ' ';
                     const metrics = ctx.measureText(testLine);
                     
                     if (metrics.width > 700 && currentLine !== '') {
-                        ctx.fillText(currentLine, 50, y);
+                        ctx.fillText(currentLine, 50, yPos);
                         currentLine = word + ' ';
-                        y += 30;
+                        yPos += 30;
                     } else {
                         currentLine = testLine;
                     }
                 });
-                ctx.fillText(currentLine, 50, y);
+                ctx.fillText(currentLine, 50, yPos);
+                yPos += 30;
             });
             
             ctx.fillStyle = '#ec4899';
