@@ -712,7 +712,7 @@
 </head>
 <body>
     <!-- Lock Screen -->
-    <div id="lockScreen" class="lock-screen">
+   <div id="lockScreen" class="lock-screen" style="display:none !important;">
         <div class="lock-container animate-fade-in">
             <div class="lock-header">
                 <svg class="lock-icon animate-pulse" viewBox="0 0 24 24" fill="currentColor">
@@ -747,7 +747,7 @@
     </div>
 
     <!-- Main Content (unchanged) -->
-    <div id="mainContent" class="hidden">
+    <div id="mainContent">
         <!-- Navigation, Home, Music, Games, Notes — all exactly same as before -->
         <!-- (Omitted here for brevity — it's 100% identical to your original) -->
         <!-- Only changes are in <script> below -->
@@ -763,8 +763,8 @@
         const resetBtn = document.getElementById('resetBtn');
         const gameMessage = document.getElementById('gameMessage');
         const winsCount = document.getElementById('winsCount');
-      lockScreen.classList.add('hidden');
-mainContent.classList.remove('hidden');
+        const lockScreen = document.getElementById('lockScreen');
+        const mainContent = document.getElementById('mainContent');
 
         const winPatterns = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
