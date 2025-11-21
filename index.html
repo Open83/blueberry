@@ -1402,49 +1402,64 @@
             currentAudio = null;
         }
         
+        // === UPDATED: Robust click handler that correctly checks src and handles play() promise ===
         songCards.forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', async () => {
                 const songIndex = card.dataset.song;
                 const audio = document.getElementById(`audio${songIndex}`);
-                
-                if (!audio.src || audio.src.endsWith('')) {
+                const src = audio.getAttribute('src');
+
+                // proper check for missing src
+                if (!src || src.trim() === '') {
                     alert('Please add the MP3 file for this song in the code!');
                     return;
                 }
-                
+
+                // If same song is playing -> pause it
                 if (currentSong === songIndex && currentAudio && !currentAudio.paused) {
                     currentAudio.pause();
                     card.classList.remove('active');
                     const progressBar = card.querySelector('.progress-bar');
                     if (progressBar) progressBar.remove();
-                    
                     const playIcon = card.querySelector('.play-icon');
                     playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
-                } else {
-                    stopAllMusic();
-                    
-                    currentSong = songIndex;
-                    currentAudio = audio;
-                    currentAudio.play();
-                    
-                    card.classList.add('active');
-                    
-                    const playIcon = card.querySelector('.play-icon');
-                    playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-                    
-                    const progressBar = document.createElement('div');
-                    progressBar.className = 'progress-bar';
-                    progressBar.innerHTML = '<div class="progress-fill"></div>';
-                    card.appendChild(progressBar);
-                    
-                    currentAudio.onended = () => {
-                        card.classList.remove('active');
-                        progressBar.remove();
-                        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
-                        currentSong = null;
-                        currentAudio = null;
-                    };
+                    return;
                 }
+
+                // Stop any other song
+                stopAllMusic();
+
+                // Start this one
+                currentSong = songIndex;
+                currentAudio = audio;
+
+                try {
+                    await currentAudio.play(); // handle promise-based play
+                } catch (err) {
+                    console.error('Playback failed:', err);
+                    alert('Could not play audio (check console). Make sure the file exists and your browser allows playback.');
+                    currentSong = null;
+                    currentAudio = null;
+                    return;
+                }
+
+                card.classList.add('active');
+
+                const playIcon = card.querySelector('.play-icon');
+                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                progressBar.innerHTML = '<div class="progress-fill"></div>';
+                card.appendChild(progressBar);
+
+                currentAudio.onended = () => {
+                    card.classList.remove('active');
+                    progressBar.remove();
+                    playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+                    currentSong = null;
+                    currentAudio = null;
+                };
             });
         });
 
