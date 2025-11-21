@@ -1215,7 +1215,7 @@
 
             // Probability the AI intentionally makes a mistake (random legal move)
             // Tweak this value to control how often the AI slips (0.0 = never, 0.5 = half the time)
-            const CHANCE_TO_MISTAKE = 0.30; // 25% chance to play a random move
+            const CHANCE_TO_MISTAKE = 0.20; // 25% chance to play a random move
 
             if (Math.random() < CHANCE_TO_MISTAKE){
                 return avail[Math.floor(Math.random() * avail.length)];
