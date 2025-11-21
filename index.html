@@ -1204,9 +1204,26 @@
             }
         }
 
+        // ======= UPDATED makeAIMove() — occasional mistakes + random tie-break =======
         function makeAIMove(){
+            // collect available moves
+            const avail = [];
+            for (let i = 0; i < 9; i++){
+                if (board[i] === null) avail.push(i);
+            }
+            if (avail.length === 0) return null;
+
+            // Probability the AI intentionally makes a mistake (random legal move)
+            // Tweak this value to control how often the AI slips (0.0 = never, 0.5 = half the time)
+            const CHANCE_TO_MISTAKE = 0.25; // 25% chance to play a random move
+
+            if (Math.random() < CHANCE_TO_MISTAKE){
+                return avail[Math.floor(Math.random() * avail.length)];
+            }
+
+            // Otherwise use minimax to pick the best move, but if multiple best moves exist, pick randomly among them
             let bestScore = -Infinity;
-            let bestMove = null;
+            let bestMoves = [];
             for (let i=0;i<9;i++){
                 if (board[i] === null){
                     board[i] = 'O';
@@ -1214,12 +1231,16 @@
                     board[i] = null;
                     if (score > bestScore){
                         bestScore = score;
-                        bestMove = i;
+                        bestMoves = [i];
+                    } else if (score === bestScore){
+                        bestMoves.push(i);
                     }
                 }
             }
-            return bestMove;
+            // choose randomly among equally-good moves to reduce predictability
+            return bestMoves[Math.floor(Math.random() * bestMoves.length)];
         }
+        // ================================================================
 
         function handleSquareClick(e){
             const index = parseInt(e.target.dataset.index);
